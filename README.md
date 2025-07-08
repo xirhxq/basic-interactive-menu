@@ -64,9 +64,12 @@ def __init__(self, multiple_allowed=False, debug=False):
 .
 ├── README.md
 ├── interactive_menu.py        # Core menu system implementation
-└── examples/
-    ├── one_layer.py           # Single-layer menu example
-    └── three_layers.py        # Three-level menu example
+├── examples/
+│   ├── one_layer.py           # Single-layer menu example
+│   └── three_layers.py        # Three-level menu example
+└── tests/
+    ├── test_one_layer.py      # Unit tests for one-layer menu
+    └── test_three_layers.py   # Unit tests for three-layer menu
 ```
 
 ### Example Usage
@@ -77,6 +80,13 @@ python examples/one_layer.py
 
 # Run three-layer example
 python examples/three_layers.py
+
+# Run tests
+python -m unittest tests/test_one_layer.py
+python -m unittest tests/test_three_layers.py
+
+# Run all tests
+python -m unittest discover tests
 ```
 
 ### Sample Output
@@ -170,7 +180,7 @@ class MyCustomClass:
 
 We welcome contributions to improve this project! Please consider:
 
-1. **Testing** - Run the examples and report any bugs or unexpected behavior
+1. **Testing** - Run the examples and tests, and report any bugs or unexpected behavior
 2. **Enhancements** - Suggest or implement improvements to the core functionality
 3. **Documentation** - Help improve the clarity and completeness of documentation
 4. **Examples** - Add new example implementations demonstrating different use cases
@@ -180,6 +190,12 @@ To contribute:
 2. Create a feature branch
 3. Implement your changes
 4. Submit a pull request with detailed explanation
+
+When contributing, please ensure:
+- Your changes maintain backward compatibility
+- New functionality includes corresponding test cases
+- Documentation is updated to reflect changes
+- Code follows existing style guidelines
 
 Your contributions help make this library better for everyone!
 
