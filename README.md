@@ -1,5 +1,7 @@
 # Basic Interactive Menu
 
+![Example, Three Layers](example_three_layers.gif)
+
 A simple Python-based interactive menu system for building command-line applications with nested menus and selection workflows.
 
 **Unique Features Highlight**:
