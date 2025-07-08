@@ -11,21 +11,14 @@ A simple Python-based interactive menu system for building command-line applicat
 ## Overview
 
 This project provides a lightweight framework for creating interactive command-line interfaces with:
-- **Chainable API** for intuitive menu building
-- **Parent-child navigation** with single-key return (`r` command)
-- **Pure Python implementation** requiring no third-party dependencies
-- Multi-level menu navigation with selection persistence across sessions
+- Chainable API for intuitive menu building
+- Parent-child navigation with single-key return (`r` command)
+- Pure Python implementation requiring no third-party dependencies
+- Multi-level menu navigation with selection persistence
 - Single and multiple selection support
+- Dynamic class instantiation
 
-The example implementation demonstrates selecting a data file, processing class, and visualization types to generate charts.
-
-## Usage
-
-This is a single-file (and single-class) library. You only need the `interactive_menu.py` file to use this framework in your projects. Simply copy the file to your project directory and import it:
-
-```python
-from interactive_menu import InteractiveMenu
-```
+The core implementation resides in a single file: [interactive_menu.py](interactive_menu.py)
 
 ## Requirements
 
@@ -38,37 +31,6 @@ We recommend using [conda](https://docs.conda.io/en/latest/) to create a clean P
 conda create -n basic-interactive-menu python=3.6
 conda activate basic-interactive-menu
 ```
-
-## File Structure
-
-```plain
-.
-├── README.md
-├── interactive_menu.py        # Core menu system implementation
-├── examples/
-│   ├── one_layer.py           # Single-layer menu example
-│   └── three_layers.py        # Three-level menu example with dynamic class instantiation
-```
-
-### Key Files
-
-1. **`interactive_menu.py`** - Menu core:
-   - `InteractiveMenu` class with chainable methods
-   - Menu navigation and selection handling
-   - Single/multiple selection support
-   - Parent-child menu relationships
-   - Selection confirmation and restart workflow
-
-2. **`examples/one_layer.py`** - Single-layer menu example:
-   - Demonstrates basic menu creation
-   - Shows simple selection workflow
-   - Illustrates single option selection
-
-3. **`examples/three_layers.py`** - Three-level menu example:
-   - Demonstrates multi-level menu navigation
-   - Shows dynamic class instantiation
-   - Illustrates parent-child menu relationships
-   - Implements complete selection workflow
 
 ## API Documentation
 
@@ -84,57 +46,28 @@ def __init__(self, multiple_allowed=False, debug=False):
 
 #### Core Methods
 
-1. **`set_key(key)`**
-   Sets the result key name for this menu level
-   - `key`: The key name to identify this menu's result
+1. **`set_key(key)`** - Sets the result key name
+2. **`set_title(title_text)`** - Sets the menu title
+3. **`add_option(name)`** - Adds a single option
+4. **`add_options(items)`** - Adds multiple options
+5. **`allow_multiple()`** - Enables multiple selection mode
+6. **`ask(title=None, key=None)`** - Displays menu and gets user input
+7. **`get_all_results()`** - Gets all results with confirmation
 
-2. **`set_title(title_text)`**
-   Sets the title for the current menu level
-   - `title_text`: The title text to display
+## Getting Started
 
-3. **`add_option(name)`**
-   Adds a single option to the current menu level
-   - `name`: The text to display for this option
+### File Structure
 
-4. **`add_options(items)`**
-   Adds multiple options to the current menu level
-   - `items`: A list of strings representing the options
-
-5. **`allow_multiple()`**
-   Enables multiple selection mode for the current menu level
-
-6. **`ask(title=None, key=None)`**
-   Displays the menu and gets user input
-   - `title`: Optional title to override the set title
-   - `key`: Optional key name to override the set key
-   Returns: self for chainability
-
-7. **`get_all_results()`**
-   Gets all results from completed menu flow
-   Returns: Dictionary of results if confirmed, None otherwise
-
-8. **`has_quit()`**
-   Checks if the user has quit the menu
-   Returns: Boolean indicating if user quit
-
-9. **`has_ended()`**
-   Checks if the menu flow has ended
-   Returns: Boolean indicating if menu flow has ended
-
-These methods are designed to be used in a chainable fashion, allowing for fluent API style programming:
-
-```python
-results = (
-    InteractiveMenu()
-    .add_option("Apple")
-    .add_option("Banana")
-    .add_options(["Orange", "Grapes"])
-    .ask("Select a Fruit", "selection")
-    .get_all_results()
-)
+```plain
+.
+├── README.md
+├── interactive_menu.py        # Core menu system implementation
+└── examples/
+    ├── one_layer.py           # Single-layer menu example
+    └── three_layers.py        # Three-level menu example
 ```
 
-## Example Usage
+### Example Usage
 
 ```bash
 # Run single-layer example
@@ -187,33 +120,67 @@ file: data1.csv
 class_name: B
 chart_type_list: ['Line Chart', 'Scatter Plot']
 
-Confirm selection? (y/n/r=restart/l=last): y
+Confirm selection? (y/n/r=restart): y
 ```
 
-## Customization
+## Customization Guide
 
-1. **Add new processors**:
-   - Create new class files in `classes/`
-   - Implement with `__init__(self, **kwargs)`
-   - Import in `classes/classes.py`
+### Integrating into Your Project
 
-2. **Modify menu options**:
-   - Edit options in your code:
-   
-    ```python
-    # Create a new menu instance
-    menu = InteractiveMenu()
-    
-    # Add a single option
-    menu.add_option("New Option")
-    
-    # Add multiple options
-    menu.add_options(["Option 1", "Option 2"])
-    ```
+1. **Copy the core file**:
+```bash
+cp interactive_menu.py your_project_directory/
+```
 
-3. **Extend workflow**:
-   - Add new menu levels by calling `.ask()` multiple times
-   - Adjust parent-child relationships through index management
-   - Modify result handling logic in your application code
+2. **Import the module**:
+```python
+from interactive_menu import InteractiveMenu
+```
 
-The framework provides a flexible foundation for various command-line selection workflows beyond the example implementation.
+3. **Create your menu workflow**:
+```python
+results = (
+    InteractiveMenu()
+    .add_option("Apple")
+    .add_option("Banana")
+    .add_options(["Orange", "Grapes"])
+    .ask("Select a Fruit", "selection")
+    .get_all_results()
+)
+```
+
+4. **Implement your classes**:
+Ensure classes implement the `__init__(self, **kwargs)` interface:
+
+```python
+class MyCustomClass:
+    def __init__(self, **kwargs):
+        print(f'Class initialized with {kwargs}')
+```
+
+### Extending Functionality
+
+- Add custom validation in menu methods
+- Extend the `InteractiveMenu` class for specialized behavior
+- Implement your own result processing logic
+
+## Contributing
+
+We welcome contributions to improve this project! Please consider:
+
+1. **Testing** - Run the examples and report any bugs or unexpected behavior
+2. **Enhancements** - Suggest or implement improvements to the core functionality
+3. **Documentation** - Help improve the clarity and completeness of documentation
+4. **Examples** - Add new example implementations demonstrating different use cases
+
+To contribute:
+1. Fork the repository
+2. Create a feature branch
+3. Implement your changes
+4. Submit a pull request with detailed explanation
+
+Your contributions help make this library better for everyone!
+
+## License
+
+MIT License - see the [LICENSE](LICENSE) file for details
