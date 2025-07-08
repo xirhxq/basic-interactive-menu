@@ -2,16 +2,35 @@
 
 A simple Python-based interactive menu system for building command-line applications with nested menus and selection workflows.
 
+**Unique Features Highlight**:
+- 🚀 **Fluent Chainable API** - Build complex menus with intuitive method chaining
+- 🔄 **Seamless Parent Menu Navigation** - Built-in `r` command for hierarchical menu traversal
+- 📦 **Zero-Dependency Design** - Pure Python implementation with no external libraries
+
 ## Overview
 
 This project provides a lightweight framework for creating interactive command-line interfaces with:
+- **Chainable API** for intuitive menu building
+- **Parent-child navigation** with single-key return (`r` command)
+- **Pure Python implementation** requiring no third-party dependencies
 - Multi-level menu navigation
 - Single and multiple selection support
-- Parent-child menu relationships
 - Dynamic class instantiation
-- Clean, chainable API
+- **Selection confirmation** and **restart workflow** support
 
 The example implementation demonstrates selecting a data file, processing class, and visualization types to generate charts.
+
+## Requirements
+
+- **Python 3.6 or higher** (due to use of f-strings syntax)
+- **Zero external dependencies** - uses only Python standard libraries
+
+We recommend using [conda](https://docs.conda.io/en/latest/) to create a clean Python environment:
+
+```python
+conda create -n basic-interactive-menu python=3.6 
+conda activate basic-interactive-menu
+```
 
 ## File Structure
 
