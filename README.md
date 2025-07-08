@@ -9,6 +9,7 @@ A simple Python-based interactive menu system for building command-line applicat
 - 🔄 **Seamless Parent Menu Navigation** - Built-in `r` command for hierarchical menu traversal
 - 📦 **Zero-Dependency Design** - Pure Python implementation with no external libraries
 - ✅ **Selection Confirmation & Restart Workflow** - Built-in confirmation and restart capabilities
+- 🧪 **Development Package Support** - Easily installable with `setup.py` for development
 
 ## Overview
 
@@ -16,9 +17,8 @@ This project provides a lightweight framework for creating interactive command-l
 - Chainable API for intuitive menu building
 - Parent-child navigation with single-key return (`r` command)
 - Pure Python implementation requiring no third-party dependencies
-- Multi-level menu navigation with selection persistence
+- Multi-level menu navigation with selection persistence across sessions
 - Single and multiple selection support
-- Dynamic class instantiation
 
 The core implementation resides in a single file: [interactive_menu.py](interactive_menu.py)
 
@@ -30,39 +30,35 @@ The core implementation resides in a single file: [interactive_menu.py](interact
 We recommend using [conda](https://docs.conda.io/en/latest/) to create a clean Python environment:
 
 ```bash
-conda create -n basic-interactive-menu python=3.6
+conda create -n basic-interactive-menu python=3.6+
 conda activate basic-interactive-menu
 ```
 
-## API Documentation
-
-### `InteractiveMenu` Class
-
-#### Initialization
-```python
-def __init__(self, multiple_allowed=False, debug=False):
-    """Initialize an InteractiveMenu instance."""
-```
-- `multiple_allowed`: Whether multiple selections are allowed (default: False)
-- `debug`: Enable debug output (default: False)
-
-#### Core Methods
-
-1. **`set_key(key)`** - Sets the result key name
-2. **`set_title(title_text)`** - Sets the menu title
-3. **`add_option(name)`** - Adds a single option
-4. **`add_options(items)`** - Adds multiple options
-5. **`allow_multiple()`** - Enables multiple selection mode
-6. **`ask(title=None, key=None)`** - Displays menu and gets user input
-7. **`get_all_results()`** - Gets all results with confirmation
-
 ## Getting Started
+
+### Installation
+
+For development, we recommend installing the package in editable mode:
+
+```bash
+# Install the package in development mode
+pip install -e .
+```
+
+To uninstall:
+
+```bash
+pip uninstall basic-interactive-menu
+ ```
+
+This allows you to use standard Python imports in all project files.
 
 ### File Structure
 
 ```plain
 .
 ├── README.md
+├── setup.py              # Development package configuration
 ├── interactive_menu.py        # Core menu system implementation
 ├── examples/
 │   ├── one_layer.py           # Single-layer menu example
@@ -82,8 +78,8 @@ python examples/one_layer.py
 python examples/three_layers.py
 
 # Run tests
-python -m unittest tests/test_one_layer.py
-python -m unittest tests/test_three_layers.py
+python -m unittest tests.test_one_layer.py
+python -m unittest tests.test_three_layers.py
 
 # Run all tests
 python -m unittest discover tests
@@ -135,18 +131,40 @@ chart_type_list: ['Line Chart', 'Scatter Plot']
 Confirm selection? (y/n/r=restart): y
 ```
 
+## API Documentation
+
+### `InteractiveMenu` Class
+
+#### Initialization
+```python
+def __init__(self, multiple_allowed=False, debug=False):
+    """Initialize an InteractiveMenu instance."""
+```
+- `multiple_allowed`: Whether multiple selections are allowed (default: False)
+- `debug`: Enable debug output (default: False)
+
+#### Core Methods
+
+1. **`set_key(key)`** - Sets the result key name
+2. **`set_title(title_text)`** - Sets the menu title
+3. **`add_option(name)`** - Adds a single option
+4. **`add_options(items)`** - Adds multiple options
+5. **`allow_multiple()`** - Enables multiple selection mode
+6. **`ask(title=None, key=None)`** - Displays menu and gets user input
+7. **`get_all_results()`** - Gets all results with confirmation
+
 ## Customization Guide
 
 ### Integrating into Your Project
 
-1. **Copy the core file**:
+1. **Install the package in development mode**:
 ```bash
-cp interactive_menu.py your_project_directory/
+pip install -e .
 ```
 
 2. **Import the module**:
 ```python
-from interactive_menu import InteractiveMenu
+from basic_interactive_menu import InteractiveMenu
 ```
 
 3. **Create your menu workflow**:
@@ -184,6 +202,7 @@ We welcome contributions to improve this project! Please consider:
 2. **Enhancements** - Suggest or implement improvements to the core functionality
 3. **Documentation** - Help improve the clarity and completeness of documentation
 4. **Examples** - Add new example implementations demonstrating different use cases
+5. **Packaging** - Improve the development package configuration in setup.py
 
 To contribute:
 1. Fork the repository
