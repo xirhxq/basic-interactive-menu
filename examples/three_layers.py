@@ -1,5 +1,20 @@
 from interactive_menu import InteractiveMenu
-import classes.classes as classes
+
+
+class A:
+    def __init__(self, **kwargs):
+        print(f'Class A with {kwargs}')
+
+
+class B:
+    def __init__(self, **kwargs):
+        print(f'Class B with {kwargs}')
+
+
+class C:
+    def __init__(self, **kwargs):
+        print(f'Class C with {kwargs}')
+
 
 def main():
     all_results = (
