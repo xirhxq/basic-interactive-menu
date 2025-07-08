@@ -35,7 +35,7 @@ def main():
     if all_results is None:
         print("Quit...")
     else:
-        cls = getattr(classes, all_results["class_name"])
+        cls = globals()[all_results["class_name"]]
         instance = cls(file=all_results["file"], types=all_results["chart_type_list"])
 
 
