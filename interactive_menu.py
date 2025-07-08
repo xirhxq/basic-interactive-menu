@@ -1,6 +1,3 @@
-from ultralytics.utils import DEFAULT_CFG
-
-
 class InteractiveMenu:
     DEFAULT_TITLE = "Choose an option"
     DEFAULT_MULTIPLE_ALLOWED = False
