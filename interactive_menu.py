@@ -132,6 +132,8 @@ class InteractiveMenu:
         self._to_next()
 
     def ask(self, title=None, key=None):
+        if self.DEBUG:
+            print(f"Asking with ended {self.end} and quit {self.quit}")
         if self.quit:
             return self
         if key is not None:
@@ -192,10 +194,14 @@ class InteractiveMenu:
         self.current_index = 0
 
     def get_all_results(self):
+        if self.DEBUG:
+            print(f"Get all results")
         self.end = True
         if self.DEBUG:
             print(f"End Selection")
         if self.quit:
+            if self.DEBUG:
+                print("Quit")
             return None
         self._remove_last()
         results = dict(zip(self.keys, self.results))
@@ -211,9 +217,15 @@ class InteractiveMenu:
                 return None
             elif confirm == 'r':
                 self._reset()
-                return self.ask()
+                results = self.ask()
+                if results is self:
+                    return None
+                return results
             elif confirm == 'l':
-                return self.ask()
+                results = self.ask()
+                if results is self:
+                    return None
+                return results
             else:
                 print("Invalid input. Please enter y/n/r")
 
