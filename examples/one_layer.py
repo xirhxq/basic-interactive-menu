@@ -11,6 +11,9 @@ def simple_fruit_menu():
     )
 
     selection = menu.get_all_results() # get the selection
+    if selection is None:
+        print("\nExiting...")
+        return
     print(f"\nYou selected: {selection['selection']}")
 
 
