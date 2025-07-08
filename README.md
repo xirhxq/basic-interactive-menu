@@ -186,3 +186,13 @@ Your contributions help make this library better for everyone!
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details
+
+## Acknowledgments
+
+We would like to express our gratitude to the following AI tools and models that contributed to this project:
+
+- **Tongyi Lingma**: For generating code & commit messages, designing architecture, and improving development efficiency
+- **Qwen3**: For creating clear documentation and enhancing code readability
+- **DeepSeek-R1**: For optimizing implementation logic and providing technical guidance
+
+These AI assistants have significantly accelerated the development process and helped maintain high code quality standards.
