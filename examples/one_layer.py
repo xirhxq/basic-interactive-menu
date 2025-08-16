@@ -1,4 +1,4 @@
-from interactive_menu import InteractiveMenu
+from basic_interactive_menu import InteractiveMenu
 
 
 def simple_fruit_menu():

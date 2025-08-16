@@ -1,4 +1,4 @@
-from interactive_menu import InteractiveMenu
+from basic_interactive_menu import InteractiveMenu
 
 class A:
     def __init__(self, **kwargs):

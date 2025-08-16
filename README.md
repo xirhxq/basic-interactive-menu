@@ -20,7 +20,7 @@ This project provides a lightweight framework for creating interactive command-l
 - Multi-level menu navigation with selection persistence across sessions
 - Single and multiple selection support
 
-The core implementation resides in a single file: [interactive_menu.py](interactive_menu.py)
+The core implementation resides in a single file: [basic_interactive_menu/interactive_menu.py](basic_interactive_menu/interactive_menu.py)
 
 ## Requirements
 
@@ -58,12 +58,15 @@ This allows you to use standard Python imports in all project files.
 ```plain
 .
 ├── README.md
-├── setup.py              # Development package configuration
-├── interactive_menu.py        # Core menu system implementation
+├── setup.py                   # Development package configuration
+├── basic_interactive_menu/    # Package directory
+│   ├── __init__.py            # Package initialization
+│   └── interactive_menu.py    # Core menu system implementation
 ├── examples/
 │   ├── one_layer.py           # Single-layer menu example
 │   └── three_layers.py        # Three-level menu example
 └── tests/
+    ├── __init__.py            # Tests package initialization
     ├── test_one_layer.py      # Unit tests for one-layer menu
     └── test_three_layers.py   # Unit tests for three-layer menu
 ```
