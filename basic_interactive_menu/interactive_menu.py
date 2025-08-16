@@ -137,6 +137,11 @@ class InteractiveMenu:
         self._to_next()
 
     def ask(self, title: Optional[str] = None, key: Optional[str] = None) -> 'InteractiveMenu':
+        # If this is a restart, we need to reset the state
+        if self.end and self.current_index == 0 and len(self.options[0]) == 0:
+            # This is a restart, reset everything
+            self.end = False
+            
         if self.DEBUG:
             print(f"Asking with ended {self.end} and quit {self.quit}")
         if self.quit:
@@ -207,12 +212,17 @@ class InteractiveMenu:
             return None
         if not self.end:
             self.end = True
-            self._remove_last()
+            # Only remove last if we have more than one level and it's empty
+            if len(self.options) > 1 and len(self.options[-1]) == 0:
+                self._remove_last()
             # Filter out None keys and create a clean dictionary
             results: Dict[str, Any] = {}
-            for key, value in zip(self.keys, self.results):
-                if key is not None:
-                    results[key] = value
+            # Use all levels that have keys and results
+            for i in range(len(self.keys)):
+                key = self.keys[i]
+                result = self.results[i]
+                if key is not None and result is not None:
+                    results[key] = result
             
             print("\nCurrent selections:")
             for k, v in results.items():
