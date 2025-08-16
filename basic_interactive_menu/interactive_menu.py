@@ -1,40 +1,42 @@
-class InteractiveMenu:
-    DEFAULT_TITLE = "Choose an option"
-    DEFAULT_MULTIPLE_ALLOWED = False
-    DEBUG = False
-    def __init__(self, multiple_allowed=False, debug=False):
-        self.current_index = 0
-        self.options = [[]]
-        self.menu_title = [self.DEFAULT_TITLE]
-        self.DEFAULT_MULTIPLE_ALLOWED = multiple_allowed
-        self.multiple_allowed = [self.DEFAULT_MULTIPLE_ALLOWED]
-        self.DEBUG = debug
-        self.keys = [None]
-        self.results = [None]
-        self.quit = False
-        self.end = False
+from typing import List, Dict, Any, Optional, Union
 
-    def has_quit(self):
+class InteractiveMenu:
+    DEFAULT_TITLE: str = "Choose an option"
+    DEFAULT_MULTIPLE_ALLOWED: bool = False
+    DEBUG: bool = False
+    
+    def __init__(self, multiple_allowed: bool = False, debug: bool = False) -> None:
+        self.current_index: int = 0
+        self.options: List[List[Dict[str, str]]] = [[]]
+        self.menu_title: List[str] = [self.DEFAULT_TITLE]
+        self.multiple_allowed: List[bool] = [multiple_allowed]
+        self.DEBUG: bool = debug
+        self.keys: List[Optional[str]] = [None]
+        self.results: List[Optional[Union[str, List[str]]]] = [None]
+        self.quit: bool = False
+        self.end: bool = False
+
+    def has_quit(self) -> bool:
         return self.quit
 
-    def has_ended(self):
+    def has_ended(self) -> bool:
         if self.DEBUG:
             print("Has ended" if self.end else "Not ended")
         return self.end
 
-    def set_key(self, key):
+    def set_key(self, key: str) -> 'InteractiveMenu':
         if self.quit:
             return self
         self.keys[self.current_index] = key
         return self
 
-    def set_title(self, title_text):
+    def set_title(self, title_text: str) -> 'InteractiveMenu':
         if self.quit:
             return self
         self.menu_title[self.current_index] = title_text
         return self
 
-    def add_option(self, name):
+    def add_option(self, name: str) -> 'InteractiveMenu':
         if self.quit:
             return self
         self.options[self.current_index].append({'name': name})
@@ -42,7 +44,7 @@ class InteractiveMenu:
             print(f"Added option: {name}")
         return self
 
-    def add_options(self, items):
+    def add_options(self, items: List[str]) -> 'InteractiveMenu':
         if self.quit:
             return self
         for item in items:
@@ -51,7 +53,7 @@ class InteractiveMenu:
             print(f"Added options: {items}")
         return self
 
-    def allow_multiple(self):
+    def allow_multiple(self) -> 'InteractiveMenu':
         if self.quit:
             return self
         self.multiple_allowed[self.current_index] = True
@@ -59,12 +61,12 @@ class InteractiveMenu:
             print(f"Allow multiple: {self.multiple_allowed[self.current_index]}")
         return self
 
-    def _has_parent(self):
+    def _has_parent(self) -> bool:
         if self.DEBUG:
             print(f"Current index: {self.current_index}")
         return self.current_index > 0
 
-    def _to_parent(self):
+    def _to_parent(self) -> None:
         if self.DEBUG:
             print(f"Index from {self.current_index} to", end=" ")
         self.current_index -= 1
@@ -72,18 +74,18 @@ class InteractiveMenu:
             print(f"{self.current_index}")
         self._check_index_validity()
 
-    def _is_new(self):
+    def _is_new(self) -> bool:
         return len(self.options[self.current_index]) == 0
 
-    def _need_new(self):
+    def _need_new(self) -> bool:
         return self.current_index >= len(self.options)
 
-    def _is_last(self):
+    def _is_last(self) -> bool:
         if self.DEBUG:
             print(f"Is last: {self.current_index} == {len(self.options) - 1}")
         return self.current_index == len(self.options) - 1
 
-    def _to_next(self):
+    def _to_next(self) -> None:
         self.current_index += 1
         if self._need_new():
             self.options.append([])
@@ -93,7 +95,7 @@ class InteractiveMenu:
             self.results.append(None)
         self._check_index_validity()
 
-    def _remove_last(self):
+    def _remove_last(self) -> None:
         self.options.pop()
         self.menu_title.pop()
         self.multiple_allowed.pop()
@@ -102,36 +104,39 @@ class InteractiveMenu:
         self.current_index -= 1
         self._check_index_validity()
 
-    def _check_index_validity(self):
+    def _check_index_validity(self) -> None:
         if self.DEBUG:
             print(f"Checking index validity: {self.current_index} in range (0, {len(self.options)})")
         assert 0 <= self.current_index < len(self.options), "Invalid index, something went wrong"
 
-    def _is_multiple_allowed(self):
+    def _is_multiple_allowed(self) -> bool:
         return self.multiple_allowed[self.current_index]
 
-    def _print_history(self):
+    def _print_history(self) -> None:
         if not self._has_parent():
             return
         print("History:", end=" ")
         for i in range(self.current_index):
             if i > 0:
                 print("->", end=" ")
-            print(f"{self.keys[i]}=", end="")
-            if isinstance(self.results[i], list):
-                print("[" + ", ".join(self.results[i]) + "]", end=" ")
-            else:
-                print(self.results[i], end=" ")
+            key = self.keys[i]
+            result = self.results[i]
+            if key is not None:
+                print(f"{key}=", end="")
+            if isinstance(result, list):
+                print("[" + ", ".join(result) + "]", end=" ")
+            elif result is not None:
+                print(result, end=" ")
         print()
 
-    def _save_result_once(self, value):
+    def _save_result_once(self, value: Union[str, List[str]]) -> None:
         self.results[self.current_index] = value
         if self.DEBUG:
             print(f"Saved result: {self.keys[self.current_index]} = {value}")
             print(f"Now results: {self.results}")
         self._to_next()
 
-    def ask(self, title=None, key=None):
+    def ask(self, title: Optional[str] = None, key: Optional[str] = None) -> 'InteractiveMenu':
         if self.DEBUG:
             print(f"Asking with ended {self.end} and quit {self.quit}")
         if self.quit:
@@ -177,7 +182,7 @@ class InteractiveMenu:
 
                     self._save_result_once(results)
                     if self._is_new():
-                        return self.get_all_results() if self.has_ended() else self
+                        return self
                     continue
                 except Exception as e:
                     print("Invalid input format. Please enter indices separated by space or comma.")
@@ -185,47 +190,51 @@ class InteractiveMenu:
             elif choice.isdigit() and 0 <= int(choice) < len(self.options[self.current_index]):
                 self._save_result_once(self.options[self.current_index][int(choice)]['name'])
                 if self._is_new():
-                    return self.get_all_results() if self.has_ended() else self
+                    return self
                 continue
             else:
                 print("Invalid input. Please try again.")
 
-    def _reset(self):
+    def _reset(self) -> None:
         self.current_index = 0
 
-    def get_all_results(self):
+    def get_all_results(self) -> Optional[Union[Dict[str, Any], 'InteractiveMenu']]:
         if self.DEBUG:
             print(f"Get all results")
-        self.end = True
-        if self.DEBUG:
-            print(f"End Selection")
         if self.quit:
             if self.DEBUG:
                 print("Quit")
             return None
-        self._remove_last()
-        results = dict(zip(self.keys, self.results))
-        print("\nCurrent selections:")
-        for k, v in results.items():
-            print(f"{k}: {v}")
+        if not self.end:
+            self.end = True
+            self._remove_last()
+            # Filter out None keys and create a clean dictionary
+            results: Dict[str, Any] = {}
+            for key, value in zip(self.keys, self.results):
+                if key is not None:
+                    results[key] = value
+            
+            print("\nCurrent selections:")
+            for k, v in results.items():
+                print(f"{k}: {v}")
 
-        while True:
-            confirm = input("\nConfirm selection? (y/n/r=restart/l=last): ").strip().lower()
-            if confirm == 'y':
-                return results
-            elif confirm == 'n':
-                return None
-            elif confirm == 'r':
-                self._reset()
-                results = self.ask()
-                if results is self:
+            while True:
+                confirm = input("\nConfirm selection? (y/n/r=restart/l=last): ").strip().lower()
+                if confirm == 'y':
+                    return results
+                elif confirm == 'n':
                     return None
-                return results
-            elif confirm == 'l':
-                results = self.ask()
-                if results is self:
-                    return None
-                return results
-            else:
-                print("Invalid input. Please enter y/n/r")
+                elif confirm == 'r':
+                    self._reset()
+                    # For restart, we return self to allow building a new menu
+                    return self
+                elif confirm == 'l':
+                    # For last, we also return self to allow building a new menu
+                    return self
+                else:
+                    print("Invalid input. Please enter y/n/r")
+        else:
+            # This is a restart or last option, so we need to ask again
+            # Return self to allow continuing the chain
+            return self
 

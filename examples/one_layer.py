@@ -2,19 +2,27 @@ from basic_interactive_menu import InteractiveMenu
 
 
 def simple_fruit_menu():
-    menu = (
-        InteractiveMenu()
-        .add_option("Apple") # add an option
-        .add_option("Banana")
-        .add_options(["Orange", "Grapes"]) # add multiple options
-        .ask("Select a Fruit", "selection") # ask the user to select, passing hint and key args
-    )
+    while True:
+        menu = (
+            InteractiveMenu()
+            .add_option("Apple") # add an option
+            .add_option("Banana")
+            .add_options(["Orange", "Grapes"]) # add multiple options
+            .ask("Select a Fruit", "selection") # ask the user to select, passing hint and key args
+        )
 
-    selection = menu.get_all_results() # get the selection
-    if selection is None:
-        print("\nExiting...")
-        return
-    print(f"\nYou selected: {selection['selection']}")
+        selection = menu.get_all_results() # get the selection
+        
+        # Handle restart/last options
+        if isinstance(selection, InteractiveMenu):
+            # User chose to restart or go back, continue the loop
+            continue
+        
+        if selection is None:
+            print("\nExiting...")
+            return
+        print(f"\nYou selected: {selection['selection']}")
+        break
 
 
 if __name__ == "__main__":
