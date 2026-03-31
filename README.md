@@ -1,6 +1,6 @@
 # Basic Interactive Menu
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue)
+![Version](https://img.shields.io/badge/version-0.4.0-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![License](https://img.shields.io/badge/license-MIT-orange)
 ![Tests](https://img.shields.io/badge/tests-127%20passing-brightgreen)
@@ -34,6 +34,21 @@ git clone https://github.com/xirhxq/basic-interactive-menu.git
 cd basic-interactive-menu
 pip install -e .
 ```
+
+## Documentation
+
+- **[Architecture](docs/architecture.md)** - System overview and component design
+- **[Tutorials](docs/tutorials/)** - Step-by-step guides
+  - [Getting Started](docs/tutorials/01-getting-started.md)
+  - [Building Your First Menu](docs/tutorials/02-building-your-first-menu.md)
+  - [Advanced Features](docs/tutorials/03-advanced-features.md)
+  - [Contributing Guide](docs/tutorials/04-contributing-guide.md)
+  - [Writing Tests](docs/tutorials/05-writing-tests.md)
+- **[Architecture Decision Records](docs/adr/)** - Key design decisions
+  - [ADR-001: Zero-Dependency Philosophy](docs/adr/001-zero-dependency-philosophy.md)
+  - [ADR-002: Fluent API Pattern](docs/adr/002-fluent-api-pattern.md)
+  - [ADR-003: TDD Approach](docs/adr/003-tdd-approach.md)
+  - [ADR-004: Type-First Development](docs/adr/004-type-first-development.md)
 
 ## Quick Start
 

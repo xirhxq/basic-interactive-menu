@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-31
+
+### Added
+- **Architecture Decision Records (ADR)**: 4 comprehensive ADRs documenting key design decisions
+  - ADR-001: Zero-dependency design philosophy
+  - ADR-002: Fluent chainable API pattern
+  - ADR-003: Test-driven development approach
+  - ADR-004: Type-first development strategy
+- **Architecture Documentation**: Complete system overview with diagrams
+  - Component interaction diagrams
+  - Data flow diagrams
+  - Design principles and trade-offs
+- **Tutorial Series**: 5 step-by-step guides for users and contributors
+  - 01-getting-started: Installation and first menu
+  - 02-building-your-first-menu: Deep dive into menu construction
+  - 03-advanced-features: Search, groups, themes
+  - 04-contributing-guide: How to contribute
+  - 05-writing-tests: Testing best practices
+- **README documentation section**: Quick links to all documentation
+
+### Changed
+- Enhanced README with documentation links
+- Improved project positioning as both tool library and teaching example
+- Better onboarding for new contributors
+
+### Documentation
+- Added 9 comprehensive documents (~3,500 lines)
+- ADRs provide rationale for major design decisions
+- Tutorials cover beginner to advanced topics
+- Architecture docs explain system design
+
 ## [0.3.0] - 2026-03-31
 
 ### Added
