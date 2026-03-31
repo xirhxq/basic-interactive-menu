@@ -68,6 +68,11 @@ class InteractiveMenu:
         self.quit: bool = False
         self.end: bool = False
 
+        # v0.3 features
+        self.search_enabled: List[bool] = [False]
+        self.groups: List[List] = [[]]  # List of group renderers per level
+        self.theme: Any = None  # Will be set by set_theme()
+
     def has_quit(self) -> bool:
         return self.quit
 
@@ -162,6 +167,62 @@ class InteractiveMenu:
         self.multiple_allowed[self.current_index] = True
         if self.DEBUG:
             print(f"Allow multiple: {self.multiple_allowed[self.current_index]}")
+        return self
+
+    def enable_search(self) -> 'InteractiveMenu':
+        """Enable search functionality for the current menu.
+
+        When enabled, users can press '/' to enter search mode and
+        filter options by typing a query string.
+
+        Returns:
+            Self, for method chaining.
+        """
+        self.search_enabled[self.current_index] = True
+        return self
+
+    def add_group(self, name: str, options: List[str]) -> 'InteractiveMenu':
+        """Add a group of related options to the current menu.
+
+        Groups are visually separated in the menu display and help
+        organize related options together.
+
+        Args:
+            name: Display name for the group.
+            options: List of option strings in this group.
+
+        Returns:
+            Self, for method chaining.
+
+        Raises:
+            ValueError: If options list is empty.
+        """
+        if not options:
+            raise ValueError(f"Group '{name}' cannot have empty options")
+
+        from basic_interactive_menu.groups import OptionGroup
+        self.groups[self.current_index].append(OptionGroup(name=name, options=options))
+
+        for option in options:
+            self.add_option(option)
+        return self
+
+    def set_theme(self, theme: Union[str, Any]) -> 'InteractiveMenu':
+        """Set the visual theme for menu display.
+
+        Args:
+            theme: Either a theme name (str) like 'minimal', 'bold', 'colorful',
+                or a MenuTheme object for custom theming.
+
+        Returns:
+            Self, for method chaining.
+        """
+        from basic_interactive_menu.themes import get_theme
+
+        if isinstance(theme, str):
+            self.theme = get_theme(theme)
+        else:
+            self.theme = theme
         return self
 
     @classmethod
@@ -280,6 +341,8 @@ class InteractiveMenu:
             self.keys.append(None)
             self.results.append(None)
             self.shortcuts.append({})
+            self.search_enabled.append(False)
+            self.groups.append([])
         self._check_index_validity()
 
     def _remove_last(self) -> None:
@@ -289,6 +352,8 @@ class InteractiveMenu:
         self.keys.pop()
         self.results.pop()
         self.shortcuts.pop()
+        self.search_enabled.pop()
+        self.groups.pop()
         self.current_index -= 1
         self._check_index_validity()
 
@@ -323,6 +388,90 @@ class InteractiveMenu:
             print(f"Saved result: {self.keys[self.current_index]} = {value}")
             print(f"Now results: {self.results}")
         self._to_next()
+
+    def _handle_search_mode(self) -> None:
+        """Handle interactive search mode for filtering options.
+
+        Users can type a query string and see matching options.
+        Press Enter to select from filtered results, '/' again or Esc to exit search.
+        """
+        from basic_interactive_menu.search import SearchEngine
+
+        option_names = [opt['name'] for opt in self.options[self.current_index]]
+        engine = SearchEngine(option_names)
+
+        while True:
+            prompt = "Filter: "
+            if self.theme:
+                prompt = self.theme.apply_prompt("Filter: ")
+            query = input(prompt).strip().lower()
+
+            # Exit search mode with '/' again or empty input
+            if query == '/' or query == '':
+                print("Exited search mode")
+                return
+
+            matches = engine.search(query)
+
+            if not matches:
+                print("No matches found. Try again or '/' to exit.")
+                continue
+
+            # Display filtered results
+            print(f"\n{engine.get_matches_summary(query)}")
+            print("-" * 30)
+            for idx in matches:
+                shortcut = self._get_option_shortcut(idx)
+                if shortcut:
+                    print(f"[{idx}/{shortcut.upper()}]: {option_names[idx]}")
+                else:
+                    print(f"[{idx}]: {option_names[idx]}")
+
+            # Get selection from filtered results
+            prompt = "Select (or '/' to search again): "
+            if self.theme:
+                prompt = self.theme.apply_prompt("Select (or '/' to search again): ")
+            select = input(prompt).strip().lower()
+
+            if select == '/':
+                continue  # Search again
+            elif select.isdigit() and int(select) in matches:
+                selected_index = int(select)
+                if self._is_multiple_allowed():
+                    self._save_result_once([self.options[self.current_index][selected_index]['name']])
+                else:
+                    self._save_result_once(self.options[self.current_index][selected_index]['name'])
+                return
+            else:
+                print("Invalid selection. Try again.")
+
+    def _print_groups(self) -> None:
+        """Print options organized by groups.
+
+        For menus with groups, displays headers and options with
+        proper global indexing.
+        """
+        from basic_interactive_menu.groups import GroupRenderer
+
+        renderer = GroupRenderer()
+
+        # Build groups from options
+        option_names = [opt['name'] for opt in self.options[self.current_index]]
+        for group in self.groups[self.current_index]:
+            renderer.add_group(group.name, group.options)
+
+        global_index = 0
+        for group_idx, group in enumerate(renderer.groups):
+            print(renderer.render_header(group))
+            for option in group.options:
+                # Find the actual index of this option
+                actual_index = option_names.index(option)
+                shortcut = self._get_option_shortcut(actual_index)
+                if shortcut:
+                    print(renderer.render_option(global_index, option, shortcut))
+                else:
+                    print(renderer.render_option(global_index, option))
+                global_index += 1
 
     def ask(self, title: Optional[str] = None, key: Optional[str] = None) -> 'InteractiveMenu':
         """Display the menu and prompt for user input.
@@ -364,20 +513,45 @@ class InteractiveMenu:
             print(f"Step {self.current_index + 1}: ", self.menu_title[self.current_index])
             print("-" * 30)
             self._print_history()
-            for idx, option in enumerate(self.options[self.current_index]):
-                shortcut = self._get_option_shortcut(idx)
-                if shortcut:
-                    print(f"[{idx}/{shortcut.upper()}]: {option['name']}")
-                else:
-                    print(f"[{idx}]: {option['name']}")
+
+            # Apply theme if set
+            if self.theme:
+                print(self.theme.apply_border("-" * 30))
+
+            # Display groups or regular options
+            if self.groups[self.current_index]:
+                self._print_groups()
+            else:
+                for idx, option in enumerate(self.options[self.current_index]):
+                    shortcut = self._get_option_shortcut(idx)
+                    if self.theme:
+                        if shortcut:
+                            print(f"[{idx}/{self.theme.apply_shortcut(shortcut.upper())}]: {self.theme.apply_option(option['name'])}")
+                        else:
+                            print(f"[{idx}]: {self.theme.apply_option(option['name'])}")
+                    else:
+                        if shortcut:
+                            print(f"[{idx}/{shortcut.upper()}]: {option['name']}")
+                        else:
+                            print(f"[{idx}]: {option['name']}")
 
             print("[q]: Quit")
             if self._has_parent():
                 print("[r]: Return to parent")
             if self._is_multiple_allowed():
                 print("[*]: Enter indices (e.g., 0 1,2) to select multiple")
+            if self.search_enabled[self.current_index]:
+                print("[/]: Search")
 
-            choice = input("Choose an option: ").strip().lower()
+            prompt = "Choose an option: "
+            if self.theme:
+                prompt = self.theme.apply_prompt("Choose an option: ")
+            choice = input(prompt).strip().lower()
+
+            # Search mode
+            if self.search_enabled[self.current_index] and choice == '/':
+                self._handle_search_mode()
+                continue
 
             # Check for single-character shortcut
             if len(choice) == 1 and choice.isalpha() and choice in self.shortcuts[self.current_index]:

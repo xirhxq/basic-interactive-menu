@@ -1,9 +1,9 @@
 # Basic Interactive Menu
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue)
+![Version](https://img.shields.io/badge/version-0.3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![License](https://img.shields.io/badge/license-MIT-orange)
-![Tests](https://img.shields.io/badge/tests-92%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-127%20passing-brightgreen)
 
 A simple Python-based interactive menu system for building command-line applications with nested menus and selection workflows.
 
@@ -11,11 +11,14 @@ A simple Python-based interactive menu system for building command-line applicat
 
 - 🚀 **Fluent Chainable API** - Build complex menus with intuitive method chaining
 - ⌨️ **Keyboard Shortcuts** - Single-character shortcuts for quick selection
+- 🔍 **Built-in Search** - Real-time search to filter menu options
+- 📂 **Option Groups** - Organize options into collapsible groups
+- 🎨 **Theme System** - Built-in themes and custom styling support
 - 📁 **Config File Support** - Define menus from JSON or YAML files
 - 🔄 **Seamless Parent Menu Navigation** - Built-in `r` command for hierarchical menu traversal
 - 📦 **Zero-Dependency Design** - Pure Python implementation with no external libraries
 - ✅ **Selection Confirmation & Restart Workflow** - Built-in confirmation and restart capabilities
-- 🧪 **Comprehensive Testing** - 92 tests with full coverage
+- 🧪 **Comprehensive Testing** - 127 tests with full coverage
 - 📝 **Full Type Hints** - Complete type annotations for IDE support
 
 ## Installation
@@ -116,6 +119,96 @@ menu = InteractiveMenu.from_file("menu.json")
 results = menu.ask().get_all_results()
 ```
 
+### Search
+
+Enable search to filter options in real-time:
+
+```python
+from basic_interactive_menu import InteractiveMenu
+
+results = (
+    InteractiveMenu()
+    .set_title("Select Programming Language")
+    .set_key("language")
+    .enable_search()  # Enable search functionality
+    .add_option("Python")
+    .add_option("JavaScript")
+    .add_option("TypeScript")
+    .add_option("Go")
+    .add_option("Rust")
+    .ask()
+    .get_all_results()
+)
+```
+
+Press `/` to enter search mode, then type to filter options.
+
+### Option Groups
+
+Organize options into collapsible groups:
+
+```python
+from basic_interactive_menu import InteractiveMenu
+
+results = (
+    InteractiveMenu()
+    .set_title("Select Tool")
+    .set_key("tool")
+    # Add a group
+    .add_group("Languages", ["Python", "JavaScript", "Go"])
+    # Add another group (collapsed by default)
+    .add_group("Databases", ["PostgreSQL", "MongoDB", "Redis"], collapsed=True)
+    # Add individual options
+    .add_option("Other")
+    .ask()
+    .get_all_results()
+)
+```
+
+### Themes
+
+Customize the visual appearance with built-in themes:
+
+```python
+from basic_interactive_menu import InteractiveMenu
+
+results = (
+    InteractiveMenu()
+    .set_title("Hacker Menu")
+    .set_theme("hacker")  # Built-in themes: default, minimal, bold, dim, colorful, hacker
+    .add_option("Initiate Hack")
+    .add_option("Scan Network")
+    .add_option("Cover Tracks")
+    .ask()
+    .get_all_results()
+)
+```
+
+Or create a custom theme:
+
+```python
+from basic_interactive_menu import InteractiveMenu, MenuTheme
+from basic_interactive_menu.themes import Colors
+
+custom_theme = MenuTheme(
+    name="custom",
+    border_style="=",
+    border_color=Colors.CYAN,
+    title_color=Colors.BOLD,
+    option_color=Colors.BRIGHT_GREEN,
+)
+
+results = (
+    InteractiveMenu()
+    .set_title("Custom Themed Menu")
+    .set_theme(custom_theme)
+    .add_option("Option A")
+    .add_option("Option B")
+    .ask()
+    .get_all_results()
+)
+```
+
 ### Multiple Selection
 
 ```python
@@ -198,6 +291,9 @@ python examples/three_layers.py
 python examples/nested_with_confirmation.py
 python examples/keyboard_shortcuts.py
 python examples/from_config.py
+python examples/search_demo.py
+python examples/groups_demo.py
+python examples/themes_demo.py
 
 # Run tests
 python -m unittest discover tests
