@@ -1,141 +1,151 @@
 # Basic Interactive Menu
 
-![Example, Three Layers](example_three_layers.gif)
+![Version](https://img.shields.io/badge/version-0.2.0-blue)
+![Python](https://img.shields.io/badge/python-3.8+-green)
+![License](https://img.shields.io/badge/license-MIT-orange)
+![Tests](https://img.shields.io/badge/tests-92%20passing-brightgreen)
 
 A simple Python-based interactive menu system for building command-line applications with nested menus and selection workflows.
 
-**Unique Features Highlight**:
+## Features
+
 - 🚀 **Fluent Chainable API** - Build complex menus with intuitive method chaining
+- ⌨️ **Keyboard Shortcuts** - Single-character shortcuts for quick selection
+- 📁 **Config File Support** - Define menus from JSON or YAML files
 - 🔄 **Seamless Parent Menu Navigation** - Built-in `r` command for hierarchical menu traversal
 - 📦 **Zero-Dependency Design** - Pure Python implementation with no external libraries
 - ✅ **Selection Confirmation & Restart Workflow** - Built-in confirmation and restart capabilities
-- 🧪 **Development Package Support** - Easily installable with `setup.py` for development
+- 🧪 **Comprehensive Testing** - 92 tests with full coverage
+- 📝 **Full Type Hints** - Complete type annotations for IDE support
 
-## Overview
-
-This project provides a lightweight framework for creating interactive command-line interfaces with:
-- Chainable API for intuitive menu building
-- Parent-child navigation with single-key return (`r` command)
-- Pure Python implementation requiring no third-party dependencies
-- Multi-level menu navigation with selection persistence across sessions
-- Single and multiple selection support
-
-The core implementation resides in a single file: [basic_interactive_menu/interactive_menu.py](basic_interactive_menu/interactive_menu.py)
-
-## Requirements
-
-- **Python 3.6 or higher** (due to use of f-strings syntax)
-- **Zero external dependencies** - uses only Python standard libraries
-
-We recommend using [conda](https://docs.conda.io/en/latest/) to create a clean Python environment:
+## Installation
 
 ```bash
-conda create -n basic-interactive-menu python=3.8
-conda activate basic-interactive-menu
+pip install basic-interactive-menu
 ```
 
-## Getting Started
-
-### Installation
-
-For development, we recommend installing the package in editable mode:
+Or for development:
 
 ```bash
-# Install the package in development mode
+git clone https://github.com/xirhxq/basic-interactive-menu.git
+cd basic-interactive-menu
 pip install -e .
 ```
 
-To uninstall:
+## Quick Start
 
-```bash
-pip uninstall basic-interactive-menu
+### Basic Usage
+
+```python
+from basic_interactive_menu import InteractiveMenu
+
+results = (
+    InteractiveMenu()
+    .set_title("Select a Fruit")
+    .set_key("fruit")
+    .add_option("Apple")
+    .add_option("Banana")
+    .add_options(["Orange", "Grapes"])
+    .ask()
+    .get_all_results()
+)
+
+print(f"You selected: {results['fruit']}")
 ```
 
-This allows you to use standard Python imports in all project files.
+### Keyboard Shortcuts
 
-### File Structure
+```python
+from basic_interactive_menu import InteractiveMenu
 
-```plain
-.
-├── README.md
-├── setup.py                   # Development package configuration
-├── basic_interactive_menu/    # Package directory
-│   ├── __init__.py            # Package initialization
-│   └── interactive_menu.py    # Core menu system implementation
-├── examples/
-│   ├── nested_with_confirmation.py # Complex nested menu with confirmation
-│   ├── one_layer.py           # Single-layer menu example
-│   └── three_layers.py        # Three-level menu example
-└── tests/
-    ├── __init__.py            # Tests package initialization
-    ├── test_one_layer.py      # Unit tests for one-layer menu
-    └── test_three_layers.py   # Unit tests for three-layer menu
+menu = InteractiveMenu()
+
+result = (
+    menu
+    .set_title("Select Action")
+    .set_key("action")
+    # Explicit shortcuts
+    .add_option("Exit", shortcut='x')
+    .add_option("Continue", shortcut='c')
+    # Auto-generated shortcuts
+    .add_option("Help")
+    .add_option("Settings")
+    .ask()
+    .get_all_results()
+)
 ```
 
-### Example Usage
-
-```bash
-# Run single-layer example
-python examples/one_layer.py
-
-# Run three-layer example
-python examples/three_layers.py
-
-# Run nested menu with confirmation example
-python examples/nested_with_confirmation.py
-
-# Run tests
-python -m unittest tests.test_one_layer.py
-python -m unittest tests.test_three_layers.py
-
-# Run all tests
-python -m unittest discover tests
+Menu displays shortcuts as:
+```
+------------------------------
+Step 1:  Select Action
+------------------------------
+[0/X]: Exit
+[1/C]: Continue
+[2/H]: Help
+[3/S]: Settings
+[q]: Quit
+Choose an option: x
 ```
 
-### Sample Output
+### Config File Support
 
-```plain
-------------------------------
-Step 1: Select a Data File
-------------------------------
-[0]: data1.csv
-[1]: data2.json
-[2]: data3.txt
-[q]: Quit
-Choose an option: 0
+Create a `menu.json`:
 
-Selected file: data1.csv
+```json
+{
+  "title": "Select Programming Language",
+  "key": "language",
+  "multiple": true,
+  "options": [
+    {"name": "Python", "shortcut": "p"},
+    {"name": "JavaScript", "shortcut": "j"},
+    {"name": "Go", "shortcut": "g"},
+    "TypeScript",
+    "Java"
+  ]
+}
+```
 
-------------------------------
-Step 2: Select a Class
-------------------------------
-[0]: A
-[1]: B
-[2]: C
-[q]: Quit
-[r]: Return to parent
-Choose an option: 1
+Then load it:
 
-Selected class: B
+```python
+from basic_interactive_menu import InteractiveMenu
 
-------------------------------
-Step 3: Select Chart Types
-------------------------------
-[0]: Line Chart
-[1]: Bar Chart
-[2]: Scatter Plot
-[3]: Pie Chart
-[q]: Quit
-[r]: Return to parent
-[*]: Enter indices (e.g., 0 1,2) to select multiple
-Choose an option: 0,2
+menu = InteractiveMenu.from_file("menu.json")
+results = menu.ask().get_all_results()
+```
 
-Current selections:
-file: data1.csv
-class_name: B
-chart_type_list: ['Line Chart', 'Scatter Plot']
+### Multiple Selection
 
-Confirm selection? (y/n/r=restart): y
+```python
+results = (
+    InteractiveMenu()
+    .set_title("Select Features")
+    .set_key("features")
+    .add_option("Feature A")
+    .add_option("Feature B")
+    .add_option("Feature C")
+    .allow_multiple()  # Enable multiple selection
+    .ask()
+    .get_all_results()
+)
+```
+
+### Nested Menus
+
+```python
+results = (
+    InteractiveMenu()
+    .set_key("file").add_option("data1.csv").add_option("data2.json").ask()
+    .set_key("class").add_option("A").add_option("B").add_option("C").ask()
+    .set_key("charts").allow_multiple()
+        .add_option("Line Chart")
+        .add_option("Bar Chart")
+        .add_option("Scatter Plot")
+        .ask()
+    .get_all_results()
+)
 ```
 
 ## API Documentation
@@ -144,97 +154,118 @@ Confirm selection? (y/n/r=restart): y
 
 #### Initialization
 ```python
-def __init__(self, multiple_allowed=False, debug=False):
-    """Initialize an InteractiveMenu instance."""
+InteractiveMenu(multiple_allowed=False, debug=False)
 ```
-- `multiple_allowed`: Whether multiple selections are allowed (default: False)
-- `debug`: Enable debug output (default: False)
+- `multiple_allowed`: Whether multiple selections are allowed by default
+- `debug`: Enable debug output
 
 #### Core Methods
 
-1. **`set_key(key)`** - Sets the result key name
-2. **`set_title(title_text)`** - Sets the menu title
-3. **`add_option(name)`** - Adds a single option
-4. **`add_options(items)`** - Adds multiple options
-5. **`allow_multiple()`** - Enables multiple selection mode
-6. **`ask(title=None, key=None)`** - Displays menu and gets user input
-7. **`get_all_results()`** - Gets all results with confirmation
+| Method | Description |
+|--------|-------------|
+| `set_key(key)` | Set the result key name |
+| `set_title(title)` | Set the menu title |
+| `add_option(name, shortcut=None)` | Add a single option with optional shortcut |
+| `add_options(items)` | Add multiple options |
+| `allow_multiple()` | Enable multiple selection mode |
+| `ask(title=None, key=None)` | Display menu and get user input |
+| `get_all_results()` | Get all results with confirmation |
 
-## Customization Guide
+#### Class Methods
 
-### Integrating into Your Project
+| Method | Description |
+|--------|-------------|
+| `InteractiveMenu.from_file(path)` | Create menu from JSON/YAML config file |
 
-1. **Install the package in development mode**:
+### `MenuConfig` Class
+
+Configuration loader for menu definitions from files.
+
+```python
+from basic_interactive_menu import MenuConfig
+
+# Load and validate config
+config = MenuConfig.from_file("menu.json")
+MenuConfig.validate_config(config)
+```
+
+## Examples
+
 ```bash
-pip install -e .
+# Run examples
+python examples/one_layer.py
+python examples/three_layers.py
+python examples/nested_with_confirmation.py
+python examples/keyboard_shortcuts.py
+python examples/from_config.py
+
+# Run tests
+python -m unittest discover tests
 ```
 
-2. **Import the module**:
-```python
-from basic_interactive_menu import InteractiveMenu
+## Configuration File Format
+
+### JSON Format
+
+```json
+{
+  "title": "Menu Title",
+  "key": "result_key",
+  "multiple": false,
+  "debug": false,
+  "options": [
+    {"name": "Option A", "shortcut": "a"},
+    {"name": "Option B", "shortcut": "b"},
+    "Option C"
+  ]
+}
 ```
 
-3. **Create your menu workflow**:
-```python
-results = (
-    InteractiveMenu()
-    .add_option("Apple")
-    .add_option("Banana")
-    .add_options(["Orange", "Grapes"])
-    .ask("Select a Fruit", "selection")
-    .get_all_results()
-)
+### YAML Format (optional, requires pyyaml)
+
+```yaml
+title: Menu Title
+key: result_key
+multiple: false
+debug: false
+options:
+  - name: Option A
+    shortcut: a
+  - name: Option B
+    shortcut: b
+  - Option C
 ```
 
-4. **Implement your classes**:
-Ensure classes implement the `__init__(self, **kwargs)` interface:
+## Requirements
 
-```python
-class MyCustomClass:
-    def __init__(self, **kwargs):
-        print(f'Class initialized with {kwargs}')
+- **Python 3.8 or higher**
+- **Zero external dependencies** for core functionality
+- **PyYAML** (optional, for YAML config support)
+
+```bash
+# Optional: Install PyYAML for config file support
+pip install pyyaml
 ```
-
-### Extending Functionality
-
-- Add custom validation in menu methods
-- Extend the `InteractiveMenu` class for specialized behavior
-- Implement your own result processing logic
 
 ## Contributing
 
-We welcome contributions to improve this project! Please consider:
+We welcome contributions! Please:
 
-1. **Testing** - Run the examples and tests, and report any bugs or unexpected behavior
-2. **Enhancements** - Suggest or implement improvements to the core functionality
-3. **Documentation** - Help improve the clarity and completeness of documentation
-4. **Examples** - Add new example implementations demonstrating different use cases
-5. **Packaging** - Improve the development package configuration in setup.py
-
-To contribute:
 1. Fork the repository
 2. Create a feature branch
-3. Implement your changes
-4. Submit a pull request with detailed explanation
+3. Make your changes with tests
+4. Submit a pull request
 
-When contributing, please ensure:
-- Your changes maintain backward compatibility
-- New functionality includes corresponding test cases
-- Documentation is updated to reflect changes
-- Code follows existing style guidelines
-
-Your contributions help make this library better for everyone!
+Please ensure:
+- All tests pass
+- New features include tests
+- Documentation is updated
+- Code follows existing style
 
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details
 
-## Acknowledgments
+## Changelog
 
-We would like to express our gratitude to the following AI tools and models that contributed to this project:
-
-- **Tongyi Lingma**: For generating code & commit messages, designing architecture, and improving development efficiency
-- **Qwen3**: For creating clear documentation and enhancing code readability
-- **DeepSeek-R1**: For optimizing implementation logic and providing technical guidance
-
-These AI assistants have significantly accelerated the development process and helped maintain high code quality standards.
+See [CHANGELOG.md](CHANGELOG.md) for version history and changes.

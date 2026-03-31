@@ -1,0 +1,14 @@
+{
+  "title": "Select Programming Language",
+  "key": "language",
+  "multiple": true,
+  "options": [
+    {"name": "Python", "shortcut": "p"},
+    {"name": "JavaScript", "shortcut": "j"},
+    {"name": "Go", "shortcut": "g"},
+    {"name": "Rust", "shortcut": "r"},
+    "TypeScript",
+    "Java",
+    "C++"
+  ]
+}

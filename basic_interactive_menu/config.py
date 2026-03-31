@@ -66,7 +66,7 @@ class MenuConfig:
             ValueError: If YAML is not installed or the file is invalid.
         """
         try:
-            import yaml
+            import yaml  # type: ignore
         except ImportError:
             raise ValueError(
                 "PyYAML is required for YAML config files. "

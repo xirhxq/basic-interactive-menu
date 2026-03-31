@@ -247,22 +247,6 @@ class InteractiveMenu:
                 return shortcut
         return None
 
-    def allow_multiple(self) -> 'InteractiveMenu':
-        """Enable multiple selection mode for the current menu.
-
-        When enabled, users can select multiple options by entering
-        indices separated by spaces or commas (e.g., "0 1,2").
-
-        Returns:
-            Self, for method chaining.
-        """
-        if self.quit:
-            return self
-        self.multiple_allowed[self.current_index] = True
-        if self.DEBUG:
-            print(f"Allow multiple: {self.multiple_allowed[self.current_index]}")
-        return self
-
     def _has_parent(self) -> bool:
         if self.DEBUG:
             print(f"Current index: {self.current_index}")
