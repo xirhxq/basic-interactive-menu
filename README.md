@@ -30,7 +30,7 @@ The core implementation resides in a single file: [basic_interactive_menu/intera
 We recommend using [conda](https://docs.conda.io/en/latest/) to create a clean Python environment:
 
 ```bash
-conda create -n basic-interactive-menu python=3.6+
+conda create -n basic-interactive-menu python=3.8
 conda activate basic-interactive-menu
 ```
 
@@ -49,7 +49,7 @@ To uninstall:
 
 ```bash
 pip uninstall basic-interactive-menu
- ```
+```
 
 This allows you to use standard Python imports in all project files.
 
@@ -63,6 +63,7 @@ This allows you to use standard Python imports in all project files.
 │   ├── __init__.py            # Package initialization
 │   └── interactive_menu.py    # Core menu system implementation
 ├── examples/
+│   ├── nested_with_confirmation.py # Complex nested menu with confirmation
 │   ├── one_layer.py           # Single-layer menu example
 │   └── three_layers.py        # Three-level menu example
 └── tests/
@@ -79,6 +80,9 @@ python examples/one_layer.py
 
 # Run three-layer example
 python examples/three_layers.py
+
+# Run nested menu with confirmation example
+python examples/nested_with_confirmation.py
 
 # Run tests
 python -m unittest tests.test_one_layer.py

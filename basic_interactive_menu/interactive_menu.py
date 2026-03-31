@@ -1,11 +1,61 @@
+"""Interactive menu system for building command-line applications.
+
+This module provides a fluent chainable API for creating interactive CLI menus
+with support for nested menus, selection workflows, and parent-child navigation.
+
+Example:
+    >>> results = (
+    ...     InteractiveMenu()
+    ...     .set_title("Select a Fruit")
+    ...     .set_key("fruit")
+    ...     .add_option("Apple")
+    ...     .add_option("Banana")
+    ...     .add_options(["Orange", "Grapes"])
+    ...     .ask()
+    ...     .get_all_results()
+    ... )
+"""
+
+from __future__ import annotations
+
 from typing import List, Dict, Any, Optional, Union
 
+
 class InteractiveMenu:
+    """A fluent chainable API for creating interactive CLI menus.
+
+    This class provides a simple and intuitive way to build command-line
+    interfaces with nested menus, selection persistence, and parent-child
+    navigation.
+
+    Attributes:
+        DEFAULT_TITLE: The default title displayed when no title is set.
+        DEFAULT_MULTIPLE_ALLOWED: Default setting for multiple selection mode.
+        DEBUG: Global debug flag for verbose output.
+
+    Example:
+        >>> menu = InteractiveMenu()
+        >>> results = (menu
+        ...            .set_title("Choose an option")
+        ...            .set_key("choice")
+        ...            .add_option("Option A")
+        ...            .add_option("Option B")
+        ...            .ask()
+        ...            .get_all_results())
+    """
+
     DEFAULT_TITLE: str = "Choose an option"
     DEFAULT_MULTIPLE_ALLOWED: bool = False
     DEBUG: bool = False
-    
+
     def __init__(self, multiple_allowed: bool = False, debug: bool = False) -> None:
+        """Initialize an InteractiveMenu instance.
+
+        Args:
+            multiple_allowed: Whether multiple selections are allowed by default.
+                Defaults to False.
+            debug: Enable debug output for troubleshooting. Defaults to False.
+        """
         self.current_index: int = 0
         self.options: List[List[Dict[str, str]]] = [[]]
         self.menu_title: List[str] = [self.DEFAULT_TITLE]
@@ -25,18 +75,42 @@ class InteractiveMenu:
         return self.end
 
     def set_key(self, key: str) -> 'InteractiveMenu':
+        """Set the result key name for the current menu level.
+
+        Args:
+            key: The key name to use for storing the selection result.
+
+        Returns:
+            Self, for method chaining.
+        """
         if self.quit:
             return self
         self.keys[self.current_index] = key
         return self
 
     def set_title(self, title_text: str) -> 'InteractiveMenu':
+        """Set the menu title for the current menu level.
+
+        Args:
+            title_text: The title text to display for this menu.
+
+        Returns:
+            Self, for method chaining.
+        """
         if self.quit:
             return self
         self.menu_title[self.current_index] = title_text
         return self
 
     def add_option(self, name: str) -> 'InteractiveMenu':
+        """Add a single option to the current menu.
+
+        Args:
+            name: The display name of the option.
+
+        Returns:
+            Self, for method chaining.
+        """
         if self.quit:
             return self
         self.options[self.current_index].append({'name': name})
@@ -45,6 +119,14 @@ class InteractiveMenu:
         return self
 
     def add_options(self, items: List[str]) -> 'InteractiveMenu':
+        """Add multiple options to the current menu.
+
+        Args:
+            items: A list of option display names to add.
+
+        Returns:
+            Self, for method chaining.
+        """
         if self.quit:
             return self
         for item in items:
@@ -54,6 +136,14 @@ class InteractiveMenu:
         return self
 
     def allow_multiple(self) -> 'InteractiveMenu':
+        """Enable multiple selection mode for the current menu.
+
+        When enabled, users can select multiple options by entering
+        indices separated by spaces or commas (e.g., "0 1,2").
+
+        Returns:
+            Self, for method chaining.
+        """
         if self.quit:
             return self
         self.multiple_allowed[self.current_index] = True
@@ -137,6 +227,23 @@ class InteractiveMenu:
         self._to_next()
 
     def ask(self, title: Optional[str] = None, key: Optional[str] = None) -> 'InteractiveMenu':
+        """Display the menu and prompt for user input.
+
+        This method renders the current menu with all options and waits
+        for user input. Special commands include:
+        - 'q': Quit the entire menu workflow
+        - 'r': Return to the parent menu (only available in nested menus)
+        - Multiple indices (when multiple selection is enabled): e.g., "0 1,2"
+
+        Args:
+            title: Optional title to override the current menu title.
+                If None, uses the title set by set_title().
+            key: Optional key name for storing the result.
+                If None, uses the key set by set_key().
+
+        Returns:
+            Self, for method chaining.
+        """
         # If this is a restart, we need to reset the state
         if self.end and self.current_index == 0 and len(self.options[0]) == 0:
             # This is a restart, reset everything
@@ -204,6 +311,21 @@ class InteractiveMenu:
         self.current_index = 0
 
     def get_all_results(self) -> Optional[Union[Dict[str, Any], 'InteractiveMenu']]:
+        """Get all collected results with user confirmation.
+
+        This method displays all selections made across all menu levels
+        and prompts for confirmation. The user can:
+        - 'y': Confirm and return the results dictionary
+        - 'n': Cancel and return None
+        - 'r': Restart the menu workflow
+        - 'l': Continue to add more options (last option)
+
+        Returns:
+            A dictionary mapping keys to selected values if confirmed,
+            None if cancelled, or self if restarting/continuing.
+            For multiple selections, values are lists of strings.
+            For single selections, values are strings.
+        """
         if self.DEBUG:
             print(f"Get all results")
         if self.quit:
