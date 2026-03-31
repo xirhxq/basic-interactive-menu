@@ -18,6 +18,7 @@ Example:
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 
 
@@ -63,6 +64,7 @@ class InteractiveMenu:
         self.DEBUG: bool = debug
         self.keys: List[Optional[str]] = [None]
         self.results: List[Optional[Union[str, List[str]]]] = [None]
+        self.shortcuts: List[Dict[str, int]] = [{}]
         self.quit: bool = False
         self.end: bool = False
 
@@ -102,20 +104,31 @@ class InteractiveMenu:
         self.menu_title[self.current_index] = title_text
         return self
 
-    def add_option(self, name: str) -> 'InteractiveMenu':
+    def add_option(self, name: str, shortcut: Optional[str] = None) -> 'InteractiveMenu':
         """Add a single option to the current menu.
 
         Args:
             name: The display name of the option.
+            shortcut: Optional single-character shortcut key. If None, auto-generated
+                from the first alphabetic character of the name.
 
         Returns:
             Self, for method chaining.
         """
         if self.quit:
             return self
+        option_index = len(self.options[self.current_index])
         self.options[self.current_index].append({'name': name})
+
+        if shortcut is not None:
+            shortcut = shortcut.lower()
+            if shortcut in self.shortcuts[self.current_index]:
+                existing_idx = self.shortcuts[self.current_index][shortcut]
+                raise ValueError(f"Shortcut '{shortcut}' conflicts with option at index {existing_idx}")
+            self.shortcuts[self.current_index][shortcut] = option_index
+
         if self.DEBUG:
-            print(f"Added option: {name}")
+            print(f"Added option: {name} (shortcut: {shortcut})")
         return self
 
     def add_options(self, items: List[str]) -> 'InteractiveMenu':
@@ -134,6 +147,105 @@ class InteractiveMenu:
         if self.DEBUG:
             print(f"Added options: {items}")
         return self
+
+    def allow_multiple(self) -> 'InteractiveMenu':
+        """Enable multiple selection mode for the current menu.
+
+        When enabled, users can select multiple options by entering
+        indices separated by spaces or commas (e.g., "0 1,2").
+
+        Returns:
+            Self, for method chaining.
+        """
+        if self.quit:
+            return self
+        self.multiple_allowed[self.current_index] = True
+        if self.DEBUG:
+            print(f"Allow multiple: {self.multiple_allowed[self.current_index]}")
+        return self
+
+    @classmethod
+    def from_file(cls, file_path: Union[str, Path]) -> 'InteractiveMenu':
+        """Create an InteractiveMenu from a configuration file.
+
+        Supports JSON and YAML (if pyyaml is installed) file formats.
+
+        Args:
+            file_path: Path to the configuration file.
+
+        Returns:
+            A new InteractiveMenu instance configured from the file.
+
+        Raises:
+            FileNotFoundError: If the file doesn't exist.
+            ValueError: If the file type is unsupported or content is invalid.
+
+        Example:
+            >>> menu = InteractiveMenu.from_file("menu_config.json")
+            >>> results = menu.ask().get_all_results()
+        """
+        from basic_interactive_menu.config import MenuConfig
+
+        config = MenuConfig.from_file(file_path)
+        MenuConfig.validate_config(config)
+
+        menu = cls(
+            multiple_allowed=config.get("multiple", False),
+            debug=config.get("debug", False)
+        )
+
+        title = config.get("title")
+        if title:
+            menu.set_title(title)
+
+        key = config.get("key")
+        if key:
+            menu.set_key(key)
+
+        options = config.get("options", [])
+        for option in options:
+            if isinstance(option, str):
+                menu.add_option(option)
+            elif isinstance(option, dict):
+                name = option.get("name")
+                shortcut = option.get("shortcut")
+                if name:
+                    menu.add_option(name, shortcut=shortcut)
+
+        return menu
+
+    def _auto_generate_shortcuts(self) -> None:
+        """Auto-generate shortcuts for options without explicit shortcuts.
+
+        Uses the first unique alphabetic character from each option name.
+        """
+        current_shortcuts = self.shortcuts[self.current_index].copy()
+        used_chars = set(current_shortcuts.keys())
+
+        for idx, option in enumerate(self.options[self.current_index]):
+            if idx in current_shortcuts.values():
+                continue
+
+            name = option['name']
+            for char in name.lower():
+                if char.isalpha() and char not in used_chars:
+                    self.shortcuts[self.current_index][char] = idx
+                    used_chars.add(char)
+                    break
+
+    def _get_option_shortcut(self, index: int) -> Optional[str]:
+        """Get the shortcut character for an option by index.
+
+        Args:
+            index: The option index.
+
+        Returns:
+            The shortcut character or None if no shortcut is assigned.
+        """
+        for shortcut, idx in self.shortcuts[self.current_index].items():
+            if idx == index:
+                return shortcut
+        return None
 
     def allow_multiple(self) -> 'InteractiveMenu':
         """Enable multiple selection mode for the current menu.
@@ -183,6 +295,7 @@ class InteractiveMenu:
             self.multiple_allowed.append(self.DEFAULT_MULTIPLE_ALLOWED)
             self.keys.append(None)
             self.results.append(None)
+            self.shortcuts.append({})
         self._check_index_validity()
 
     def _remove_last(self) -> None:
@@ -191,6 +304,7 @@ class InteractiveMenu:
         self.multiple_allowed.pop()
         self.keys.pop()
         self.results.pop()
+        self.shortcuts.pop()
         self.current_index -= 1
         self._check_index_validity()
 
@@ -257,13 +371,21 @@ class InteractiveMenu:
             self.set_key(key)
         if title is not None:
             self.set_title(title)
+
+        # Auto-generate shortcuts for options without explicit shortcuts
+        self._auto_generate_shortcuts()
+
         while True:
             print("\n" + "-" * 30)
             print(f"Step {self.current_index + 1}: ", self.menu_title[self.current_index])
             print("-" * 30)
             self._print_history()
             for idx, option in enumerate(self.options[self.current_index]):
-                print(f"[{idx}]: {option['name']}")
+                shortcut = self._get_option_shortcut(idx)
+                if shortcut:
+                    print(f"[{idx}/{shortcut.upper()}]: {option['name']}")
+                else:
+                    print(f"[{idx}]: {option['name']}")
 
             print("[q]: Quit")
             if self._has_parent():
@@ -273,7 +395,17 @@ class InteractiveMenu:
 
             choice = input("Choose an option: ").strip().lower()
 
-            if choice == 'q':
+            # Check for single-character shortcut
+            if len(choice) == 1 and choice.isalpha() and choice in self.shortcuts[self.current_index]:
+                selected_index = self.shortcuts[self.current_index][choice]
+                if self._is_multiple_allowed():
+                    self._save_result_once([self.options[self.current_index][selected_index]['name']])
+                else:
+                    self._save_result_once(self.options[self.current_index][selected_index]['name'])
+                if self._is_new():
+                    return self
+                continue
+            elif choice == 'q':
                 print("Exiting...")
                 self.quit = True
                 return self
