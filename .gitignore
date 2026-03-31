@@ -1,5 +1,7 @@
+# Ignore dot files except these
 .*
 !.gitignore
+!.github/
 
 __pycache__
 *.egg-info
